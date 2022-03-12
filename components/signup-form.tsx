@@ -46,6 +46,7 @@ const SingUpForm = () => {
         <label htmlFor="password">Enter your password:</label>
         <input
           type="password"
+          autoComplete="off"
           {...register('password', {
             required: 'Please enter your password',
             minLength: {
@@ -60,6 +61,7 @@ const SingUpForm = () => {
         <label htmlFor="passwordConfirm">Confirm your password:</label>
         <input
           type="password"
+          autoComplete="off"
           {...register('passwordConfirm', {
             required: 'Please enter your password',
             validate: (value) => {

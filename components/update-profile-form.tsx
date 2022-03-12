@@ -57,6 +57,7 @@ const UpdateProfileForm = () => {
         <label htmlFor="password">Enter your password:</label>
         <input
           type="password"
+          autoComplete="off"
           {...register('password', {
             minLength: {
               value: 8,
@@ -71,6 +72,7 @@ const UpdateProfileForm = () => {
         <label htmlFor="password-confirm">Confirm your password:</label>
         <input
           type="password"
+          autoComplete="off"
           {...register('passwordConfirm', {
             validate: (value) => {
               return value === password || 'The passwords do not match';

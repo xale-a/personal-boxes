@@ -20,6 +20,7 @@ service cloud.firestore {
     match /boxes/{boxid} {
     	allow read: if true;
       allow write: if resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null;
       
       match /private/{privateField} {
       	allow read, write: if
