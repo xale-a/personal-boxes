@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/auth';
 import { updateEmail, updatePassword } from 'firebase/auth';
 import { useForm } from 'react-hook-form';
-import { FormControl, Submit } from './sharedold/form';
-import { Button } from './sharedold/buttons';
+import { FormControl, Submit } from './shared/form';
+import { Button } from './shared/buttons';
 import Link from 'next/link';
 
 type FormData = {

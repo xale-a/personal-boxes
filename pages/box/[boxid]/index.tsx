@@ -8,7 +8,7 @@ import Modal from 'react-modal';
 import { FormControl } from '../../../components/shared/form';
 import { useForm } from 'react-hook-form';
 import { Button } from '../../../components/shared/buttons';
-import type { BoxContent } from '../../../types';
+import type { BoxContentType } from '../../../types';
 import { db } from '../../../utils/firebase';
 import Box from '../../../components/box';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ type FormData = {
 Modal.setAppElement("#__next");
 
 const UnlockBox: NextPage = () => {
-  const [box, setBox] = useState<BoxContent>();
+  const [box, setBox] = useState<BoxContentType>();
   const [key, setKey] = useState('');
   const [showKey, setShowKey] = useState('');
   const [flag, setFlag] = useState(false);
@@ -71,7 +71,7 @@ const UnlockBox: NextPage = () => {
           const boxContentSnap = await getDoc(doc(db, 'boxes', boxid as string, 'private', 'content'));
           if (boxContentSnap.exists()) {
             setOwner(true);
-            return setBox(boxContentSnap.data() as BoxContent);
+            return setBox(boxContentSnap.data() as BoxContentType);
           }
         }
 

@@ -10,7 +10,7 @@ import AddFilesForm from '../../../components/add-files-form';
 import { Button } from '../../../components/shared/buttons';
 import { FormControl, Submit } from '../../../components/shared/form';
 import { useAuth } from '../../../contexts/auth';
-import type { Box, BoxContent, BoxFront } from '../../../types';
+import type { BoxType, BoxContentType, BoxFrontType } from '../../../types';
 import Modal from 'react-modal';
 import { db, storage } from '../../../utils/firebase';
 import ChangeBoxFrontForm from '../../../components/change-box-front';
@@ -23,7 +23,7 @@ type FormData = {
 };
 
 const EditBox: NextPage = () => {
-  const [box, setBox] = useState<Box>();
+  const [box, setBox] = useState<BoxType>();
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -61,8 +61,8 @@ const EditBox: NextPage = () => {
     };
 
     setBox({
-      ...boxFront as BoxFront,
-      ...boxContentSnap.data() as BoxContent,
+      ...boxFront as BoxFrontType,
+      ...boxContentSnap.data() as BoxContentType,
       key: boxKeySnap.data().value
     });
   };
