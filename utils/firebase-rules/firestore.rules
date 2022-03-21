@@ -13,18 +13,19 @@ service cloud.firestore {
       }
     }
     
-    match /box-fronts/{boxFronts} {
+    match /box-front-covers/{boxFronts} {
     	allow read: if true;
+      allow write: if boxFronts == request.auth.uid;
     }
     
     match /boxes/{boxid} {
     	allow read: if true;
-      allow write: if resource.data.uid == request.auth.uid;
+      allow write: if resource.data.ownerid == request.auth.uid;
       allow create: if request.auth != null;
       
       match /private/{privateField} {
       	allow read, write: if
-        	get(/databases/$(database)/documents/boxes/$(boxid)).data.uid == request.auth.uid;
+        	get(/databases/$(database)/documents/boxes/$(boxid)).data.ownerid == request.auth.uid;
       }
     }
   }

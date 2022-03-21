@@ -12,7 +12,7 @@ import type { BoxContent } from '../../../types';
 import { db } from '../../../utils/firebase';
 import Box from '../../../components/box';
 import Link from 'next/link';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 type FormData = {
   key: string;
@@ -67,7 +67,7 @@ const UnlockBox: NextPage = () => {
       if (currentUser && !flag) {
         // Bypass for box owner
         const boxInfoSnap = await getDoc(doc(db, 'boxes', boxid as string));
-        if (boxInfoSnap.exists() && (boxInfoSnap.data().uid === currentUser.uid)) {
+        if (boxInfoSnap.exists() && (boxInfoSnap.data().ownerid === currentUser.uid)) {
           const boxContentSnap = await getDoc(doc(db, 'boxes', boxid as string, 'private', 'content'));
           if (boxContentSnap.exists()) {
             setOwner(true);

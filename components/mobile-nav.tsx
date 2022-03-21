@@ -1,60 +1,78 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import styled from 'styled-components';
+import { default as NextLink } from 'next/link';
 import { useRouter } from 'next/router';
+import { Circle, Grid, Link } from '@chakra-ui/react';
+import { AddIcon, SearchIcon } from '@chakra-ui/icons';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/auth';
 
 const MobileNav = () => {
+  const [currentPage, setCurrentPage] = useState('');
+  const { currentUser } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    setCurrentPage(router.pathname);
+  }, [router.pathname]);
+
   return (<>
-    <Nav>
-      <Link href="/" passHref><NavLink>All boxes</NavLink></Link>
-      {router.pathname === '/profile-dashboard' ? <>
-        <Link href="create-box" passHref>
-          <NavButton>
-            <Image src="/add.svg" alt="Search Icon" width={27} height={27} />
-          </NavButton>
+    <Grid
+      templateColumns='1fr max-content 1fr'
+      alignItems='center'
+      justifyItems='center'
+      py='2.5'
+      backgroundColor='purple.800'
+    >
+
+      <NextLink href='/' passHref>
+        <Link
+          fontSize='xl'
+          color={currentPage === '/' ? 'white' : 'gray.400'}
+        >
+          All boxes
         </Link>
+      </NextLink>
+
+      {currentPage === '/profile-dashboard' || currentPage === '/create-box' ? <>
+        <NextLink href='/create-box' passHref>
+          <Circle
+            border='1px'
+            borderColor='gray.200'
+            p='2.5'
+            backgroundColor='purple.800'
+            style={{ cursor: 'pointer' }}
+          >
+            <AddIcon w='27' h='27' color='gray.300' />
+          </Circle>
+        </NextLink>
       </> : <>
-        <Link href="search" passHref>
-          <NavButton>
-            <Image src="/search.svg" alt="Search Icon" width={27} height={27} />
-          </NavButton>
-        </Link>
+        <NextLink href='/search' passHref>
+          <Circle
+            border='1px'
+            borderColor='gray.200'
+            p='2.5'
+            backgroundColor='purple.800'
+            style={{ cursor: 'pointer' }}
+          >
+            <SearchIcon w='27' h='27' color='gray.300' />
+          </Circle>
+        </NextLink>
       </>}
-      <Link href="/profile-dashboard" passHref><NavLink>My boxes</NavLink></Link>
-    </Nav>
+
+
+      <NextLink
+        href={currentUser ? '/profile-dashboard' : '/login'}
+        passHref
+      >
+        <Link
+          fontSize='xl'
+          color={currentPage === '/profile-dashboard' ? 'white' : 'gray.300'}
+        >
+          My boxes
+        </Link>
+      </NextLink>
+
+    </Grid>
   </>);
 };
 
 export default MobileNav;
-
-const Nav = styled.nav`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: aliceblue;
-  padding: 1rem 2rem;
-  gap: 1rem;
-  font-size: 1.2rem;
-  color: #333;
-`;
-
-const NavButton = styled.div`
-  cursor: pointer;
-  border: 1px solid black;
-  border-radius: 50%;
-  background-color: inherit;
-  width: 3.06rem;
-  height: 3.06rem;
-  display: flex;
-  justify-content: center;
-`;
-
-const NavLink = styled.a`
-  font-size: 1.25rem;
-`;

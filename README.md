@@ -16,6 +16,7 @@ It's app that that let people create and share personal boxes. Boxes are meant t
 2. Populate .env.local file with your Firebase project credentionals.
 3. Get service account credentials from [Firebase console](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
 4. Delete all new line characters from json file and assign string to FIREBASE_ADMIN const in .env.local file.
-5. Run `yarn install`.
-6. Run `yarn dev`.
-7. (optional) Add Firestore rules to [Firebase console](https://console.firebase.google.com/) from utils folder.
+5. Set cors.json file on project. Instructions can be found [here](https://firebase.google.com/docs/storage/web/download-files#cors_configuration).
+6. Run `yarn install`.
+7. Run `yarn dev`.
+8. (optional) Add Firestore rules to [Firebase console](https://console.firebase.google.com/) from utils folder.

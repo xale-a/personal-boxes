@@ -1,35 +1,48 @@
 import Link from 'next/link';
-import styled from 'styled-components';
+import { Avatar, Flex, Heading, Menu, MenuButton, MenuGroup, MenuItem, MenuList, Spacer } from '@chakra-ui/react';
+import { useAuth } from '../contexts/auth';
+import { useRouter } from 'next/router';
 
 const Navbar = () => {
+  const { currentUser } = useAuth();
+  const router = useRouter();
+
   return (
-    <Nav>
-      <Link href="/"><a><h1>Personal Boxes</h1></a></Link>
-      <Link href="/profile" passHref><Profile>P</Profile></Link>
-    </Nav>
+    <Flex px='5' py='3' backgroundColor='purple.800'>
+
+      <Link href='/'>
+        <a><Heading as='h1' color='white'>Personal Boxes</Heading></a>
+      </Link>
+
+      <Spacer />
+
+      <Menu>
+        <MenuButton as={Avatar} src={currentUser?.photoURL || ''} cursor='pointer' />
+        <MenuList>
+          {currentUser ? <>
+            <MenuGroup>
+              <MenuItem onClick={() => { router.push('/profile'); }}>
+                Edit profile
+              </MenuItem>
+            </MenuGroup>
+            <MenuGroup>
+              <MenuItem onClick={() => { router.push('/logout'); }}>
+                Sign Out
+              </MenuItem>
+            </MenuGroup>
+          </> : <>
+            <MenuItem onClick={() => { router.push('/signup'); }}>
+              Create an account
+            </MenuItem>
+            <MenuItem onClick={() => { router.push('/login'); }}>
+              Sign in
+            </MenuItem>
+          </>}
+        </MenuList>
+      </Menu>
+
+    </Flex >
   );
 };
 
 export default Navbar;
-
-const Nav = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: aliceblue;
-  padding: 0 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-`;
-
-const Profile = styled.div`
-  border: 1px solid black;
-  border-radius: 50%;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-`;

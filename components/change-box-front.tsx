@@ -5,7 +5,7 @@ import { db } from '../utils/firebase';
 import { getDoc, doc } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 type FormData = {
   front: string;

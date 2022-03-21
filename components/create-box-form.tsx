@@ -1,39 +1,56 @@
-import { useForm } from 'react-hook-form';
-import { Button } from './shared/buttons';
-import { Submit } from './shared/form';
+import { Controller, useForm } from 'react-hook-form';
 import { db } from '../utils/firebase';
-import { collection, addDoc, serverTimestamp, getDoc, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDoc, doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/auth';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import styled from 'styled-components';
-import Link from 'next/link';
+import { default as NextLink } from 'next/link';
 import randomstring from 'randomstring';
+import { Alert, AspectRatio, Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Spacer } from '@chakra-ui/react';
+import BoxCoverPicker from './box-cover-picker';
+import { getBytes, ref, uploadBytes } from 'firebase/storage';
+import { storage } from '../utils/firebase';
 
 type FormData = {
   front: string;
 };
 
+type ErrorType = 'submit' | 'get' | undefined;
+
 const CreateBoxForm = () => {
-  const [error, setError] = useState('');
-  const [covers, setCovers] = useState<string[]>([]);
+  const [error, setError] = useState<ErrorType>();
   const { currentUser } = useAuth();
   const router = useRouter();
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<FormData>();
+  const { watch, control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>();
+
+  const watchPick = watch('front');
+
+  useEffect(() => {
+    console.log(watchPick);
+  }, [watchPick]);
 
   const onSubmit = handleSubmit(async (data) => {
-    if (currentUser == null) {
-      router.push('/login');
-    }
+    setError(undefined);
 
-    setError('');
     try {
+      const defaultFrontsSnap = await getDoc(doc(db, 'box-front-covers', 'default'));
+
       const box = await addDoc(collection(db, 'boxes'), {
-        createdAt: serverTimestamp(),
-        uid: currentUser?.uid,
+        ownerid: currentUser?.uid,
         frontURL: data.front,
+        unlocked: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
+
+      // If there's custom front
+      if (!defaultFrontsSnap.data()?.urls.includes(data.front)) {
+        const userFrontRef = ref(storage, data.front);
+        const boxFrontImage = await getBytes(ref(storage, userFrontRef.fullPath));
+
+        await uploadBytes(ref(storage, `boxes/${currentUser?.uid}/${box.id}/cover/${userFrontRef.name}`), boxFrontImage);
+      }
 
       const key = randomstring.generate(20);
 
@@ -45,59 +62,75 @@ const CreateBoxForm = () => {
         items: [],
       });
 
-      router.push(`box/${box.id}/edit`);
+      // router.push(`box/${box.id}/edit`);
+      router.push(`profile-dashboard/`);
     } catch (error) {
       console.log(error);
-      setError('Failed to create box');
+      setError('submit');
     }
   });
 
-  const getBoxFronts = async () => {
-    try {
-      const boxFrontsSnap = await getDoc(doc(db, 'box-fronts', 'box-fronts-url'));
-
-      if (!boxFrontsSnap.exists()) {
-        throw Error('Database ref error');
-      }
-
-      setCovers(boxFrontsSnap.data().urls);
-    } catch {
-      console.log(error);
-      setError('Server error');
-    }
-  };
-
   useEffect(() => {
-    getBoxFronts();
+    if (currentUser == null) {
+      router.push('/login');
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form onSubmit={onSubmit}>
-      <h2>Please pick box cover:</h2>
-      {error && <div>{error}</div>}
-      <BoxCoverPicker>
-        {covers && covers.map((cover => (
-          <BoxCover key={cover}>
-            <Image src={cover} width={140} height={140} objectFit="cover" alt="Box cover" />
-            <input type="radio" value={cover} {...register('front')} />
-          </BoxCover>
-        )))}
-      </BoxCoverPicker>
-      <Submit style={{ marginTop: '1rem' }}>
-        <Link href="/profile-dashboard">Cancel</Link>
-        <Button type="submit" disabled={isSubmitting}>Create box</Button>
-      </Submit>
-    </form>
+    <Box
+      as='form'
+      onSubmit={onSubmit}
+      maxW={['sm', 'md']}
+      mx='auto'
+    >
+      {error === 'submit' && (
+        <Alert status='error'>
+          Failed to create box, please try again
+        </Alert>
+      )}
+
+      <FormControl isInvalid={!!errors.front} mb='3'>
+        <FormLabel>Pick your box cover:</FormLabel>
+        <Controller
+          control={control}
+          name='front'
+          rules={{ required: 'Please pick your box front', }}
+          render={({ field: { onChange, value, name } }) => (
+            <BoxCoverPicker
+              onChange={onChange}
+              value={value}
+              name={name}
+            />
+          )}
+        />
+        <FormErrorMessage>{errors.front?.message}</FormErrorMessage>
+      </FormControl>
+
+      <AspectRatio
+        maxW={['sm', 'md']}
+        mx='auto'
+        mb='6'
+        ratio={16 / 9}
+      >
+        <Flex>
+          {watchPick && (
+            <Image src={watchPick} width={1920} height={1080} alt='Box front cover' />
+          )}
+        </Flex>
+      </AspectRatio>
+
+      <Flex alignItems={'center'}>
+        <NextLink href='/profile-dashboard' passHref>
+          <Button type='button' variant='ghost' px={1} ml={-1}>
+            Cancel
+          </Button>
+        </NextLink>
+        <Spacer />
+        <Button type='submit' isLoading={isSubmitting} size='lg'>Create box</Button>
+      </Flex>
+
+    </Box>
   );
 };
 
 export default CreateBoxForm;
-
-const BoxCoverPicker = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`;
-
-const BoxCover = styled.label`
-  cursor: pointer;
-`;

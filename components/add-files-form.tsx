@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { Button } from './shared/buttons';
 import { Submit } from './shared/form';
 
@@ -34,6 +34,15 @@ const AddFilesForm = ({ addFiles }: Props) => {
 
   const files = watch('files');
 
+  const onSubmit = handleSubmit(async (data) => {
+    setError('');
+    try {
+      await addFiles((data.files));
+    } catch (error: any) {
+      setError(error.message);
+    }
+  });
+
   useEffect(() => {
     // New files info
     if (!files) {
@@ -56,15 +65,6 @@ const AddFilesForm = ({ addFiles }: Props) => {
       reset();
     }
   }, [isSubmitSuccessful]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onSubmit = handleSubmit(async (data) => {
-    setError('');
-    try {
-      await addFiles((data.files));
-    } catch (error: any) {
-      setError(error.message);
-    }
-  });
 
   return (
     <form onSubmit={onSubmit} style={{ backgroundColor: 'lightgray', padding: '0.5rem' }}>

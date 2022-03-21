@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -15,9 +16,9 @@ const CreateBox: NextPage = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="container">
+    <Box p='5'>
       <CreateBoxForm />
-    </div>
+    </Box>
   );
 };
 

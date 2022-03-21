@@ -4,42 +4,45 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/auth';
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db } from '../utils/firebase';
-import { BoxFront } from '../types';
-import Link from 'next/link';
-import Image from 'next/image';
-import styled from 'styled-components';
+import { BoxFrontType } from '../types';
+import { default as NextLink } from 'next/link';
+import { Alert, Link } from '@chakra-ui/react';
+import BoxFront from '../components/box-front';
+import BoxesContainer from '../components/boxes-container';
+import Head from 'next/head';
 
 const ProfileDashboard: NextPage = () => {
-  const [boxes, setBoxes] = useState<BoxFront[]>();
+  const [boxes, setBoxes] = useState<BoxFrontType[]>();
+  const [isError, setIsError] = useState(false);
   const { currentUser } = useAuth();
   const router = useRouter();
 
   const getBoxes = async () => {
     try {
-      let boxes = [];
-
+      // Get user specific boxes
       const boxesSnapshot = await getDocs(
         query(
           collection(db, 'boxes'),
-          where('uid', '==', currentUser?.uid),
+          where('ownerid', '==', currentUser?.uid),
           orderBy('createdAt', 'desc')
         )
       );
 
+      // Set user specific boxes
+      let boxes = [];
+
       for (let box of boxesSnapshot.docs) {
         boxes.push({
+          ...box.data(),
           boxid: box.id,
-          ownerid: box.data().uid,
-          createdAt: box.data().createdAt,
-          frontURL: box.data().frontURL,
-          unlocked: box.data().unlocked,
-        } as BoxFront);
+        } as BoxFrontType);
       }
 
       setBoxes([...boxes]);
     } catch (error) {
       // Error
       console.log(error);
+      setIsError(true);
     }
   };
 
@@ -52,28 +55,30 @@ const ProfileDashboard: NextPage = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="container">
-      <Boxes>
-        {boxes && boxes.map((box) => (
-          <Link key={box.boxid} href={`box/${box.boxid}`} passHref>
-            <BoxFrontLink>
-              <Image src={box.frontURL} width={1920} height={1080} alt="Front of a box" />
-            </BoxFrontLink>
-          </Link>
-        ))}
-      </Boxes>
-    </div>
+    <BoxesContainer>
+
+      <Head>
+        <title>My Boxes | Personal Boxes</title>
+        <meta name='description' content='' />
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
+
+      {isError && (
+        <Alert status='error'>
+          <div>
+            Failed to get boxes, please <Link onClick={() => { router.reload(); }}>try again</Link>
+          </div>
+        </Alert>
+      )}
+
+      {boxes && boxes.map((box) => (
+        <NextLink key={box.boxid} href={`box/${box.boxid}`} passHref>
+          <BoxFront boxFront={box} />
+        </NextLink>
+      ))}
+
+    </BoxesContainer>
   );
 };
 
 export default ProfileDashboard;
-
-const BoxFrontLink = styled.div`
-  max-width: 32rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-`;
-
-const Boxes = styled.div`
-  padding: 0.5rem;
-`;

@@ -1,14 +1,15 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type BoxFront = {
+export type BoxFrontType = {
   boxid: string;
   ownerid: string;
-  createdAt: Timestamp;
   frontURL: string;
   unlocked: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };
 
-export type BoxContent = {
+export type BoxContentType = {
   items: [{
     name: string;
     type: string;
@@ -17,7 +18,7 @@ export type BoxContent = {
   }];
 };
 
-export type Box = BoxFront & BoxContent & {
+export type BoxType = BoxFrontType & BoxContentType & {
   key?: string;
 };
 

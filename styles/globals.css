@@ -15,15 +15,22 @@ button {
   font: inherit;
 }
 
-* {
-  box-sizing: border-box;
+.layout {
+  display: grid;
+  grid-template-rows: max-content 1fr max-content;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.container {
+main {
+  overflow: auto;
+}
+
+/* .container {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   min-height: 80vh;
   margin-bottom: 10vh;
-}
+} */

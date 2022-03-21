@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import AddFilesForm from '../../../components/add-files-form';
 import { Button } from '../../../components/shared/buttons';
 import { FormControl, Submit } from '../../../components/shared/form';

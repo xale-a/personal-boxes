@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import { BoxContent } from '../types';
+import styled from '@emotion/styled';
+import { BoxContentType } from '../types';
 
-const Box = (box: BoxContent) => {
+const Box = (box: BoxContentType) => {
   const { items } = box;
 
   return (

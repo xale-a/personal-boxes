@@ -1,70 +1,73 @@
 import { collection, getDocs } from 'firebase/firestore';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
-import Link from 'next/link';
+import { default as NextLink } from 'next/link';
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { BoxFront } from '../types';
+import { BoxFrontType } from '../types';
 import { db } from '../utils/firebase';
+import BoxFront from '../components/box-front';
+import { Alert, Link } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import BoxesContainer from '../components/boxes-container';
 
 const Home: NextPage = () => {
-  const [boxes, setBoxes] = useState<BoxFront[]>();
+  const [boxes, setBoxes] = useState<BoxFrontType[]>();
+  const [isError, setIsError] = useState(false);
+  const router = useRouter();
 
   const getBoxes = async () => {
     try {
-      let boxes = [];
       // Get all boxes
       const boxesSnapshot = await getDocs(collection(db, 'boxes'));
+
+      // Set all boxes
+      let boxes = [];
+
       for (let box of boxesSnapshot.docs) {
         boxes.push({
+          ...box.data(),
           boxid: box.id,
-          ownerid: box.data().uid,
-          createdAt: box.data().createdAt,
-          frontURL: box.data().frontURL,
-          unlocked: box.data().unlocked,
-        } as BoxFront);
+        } as BoxFrontType);
       }
-      // Set all boxes
+
       setBoxes([...boxes]);
     } catch (error) {
       // Error
       console.log(error);
+      setIsError(true);
     }
   };
 
   useEffect(() => {
+    //TODO Listen for changes
     getBoxes();
   }, []);
 
   return (
-    <div className="container">
+    <BoxesContainer>
+
       <Head>
         <title>Personal Boxes</title>
-        <meta name="description" content="" />
-        <link rel="icon" href="/favicon.ico" />
+        <meta name='description' content='' />
+        <link rel='icon' href='/favicon.ico' />
       </Head>
-      <Boxes>
-        {boxes && boxes.map((box) => (
-          <Link key={box.boxid} href={`box/${box.boxid}`} passHref>
-            <BoxFrontLink>
-              <Image src={box.frontURL} width={1920} height={1080} alt="Front of a box" />
-            </BoxFrontLink>
-          </Link>
-        ))}
-      </Boxes>
-    </div>
+
+      {isError && (
+        <Alert status='error'>
+          <div>
+            Failed to get boxes, please <Link onClick={() => { router.reload(); }}>try again</Link>
+          </div>
+        </Alert>
+      )}
+
+      {boxes && boxes.map((box) => (
+        <NextLink key={box.boxid} href={`box/${box.boxid}`} passHref>
+          <BoxFront boxFront={box} />
+        </NextLink>
+      ))}
+
+    </BoxesContainer>
   );
 };
 
 export default Home;
-
-const BoxFrontLink = styled.div`
-  max-width: 32rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-`;
-
-const Boxes = styled.div`
-  padding: 0.5rem;
-`;
